@@ -12,7 +12,7 @@ AuthManager::AuthManager(QObject *parent) : QObject(parent)
 void AuthManager::authentificate(const QString &login,
                                  const QString &password)
 {
-    QUrl url("http://127.0.0.1:59256/auth");
+    QUrl url("http://127.0.0.1:54086/auth");
     QNetworkRequest request(url);
     request.setHeader(QNetworkRequest::ContentTypeHeader,
                       "application/json");
@@ -23,34 +23,21 @@ void AuthManager::authentificate(const QString &login,
     QNetworkReply *reply = _net.post(request, bodyData);
     connect(reply, &QNetworkReply::finished,
             [this, reply](){
-        if(reply->error()!= QNetworkReply::NoError){
-            this->authError = reply->errorString();
+        QString authError;
+        if(reply->error() != QNetworkReply::NoError){
+            authError = reply->errorString();
         }
-        else {
-            QJsonObject obj = QJsonDocument::fromJson(reply->readAll()).object();
-            QString token = obj.value("token").toString();
-            this->token = token;
-        }
-        this->onAuthFinished();
+        QJsonObject obj = QJsonDocument::fromJson(reply->readAll()).object();
+        QString token = obj.value("token").toString();
+        emit authReqComplete(authError,token);
         reply -> deleteLater();
     });
-}
-
-void AuthManager::onAuthFinished()
-{
-    qDebug() << "Auth error: " << this->authError;
-    qDebug() << "token: " << this->getToken();
-    emit authReqComplete(this->authError);
-}
-
-QString AuthManager::getToken() {
-    return this->token;
 }
 
 void AuthManager::registering(const QString &login, const QString &password)
 {
 
-    QUrl url("http://127.0.0.1:59256/register");
+    QUrl url("http://127.0.0.1:54086/register");
     QNetworkRequest request(url);
     request.setHeader(QNetworkRequest::ContentTypeHeader,
                       "application/json");
@@ -61,18 +48,12 @@ void AuthManager::registering(const QString &login, const QString &password)
     QNetworkReply *reply = _net.post(request, bodyData);
     connect(reply, &QNetworkReply::finished,
             [this, reply](){
-        if(reply->error()!= QNetworkReply::NoError){
-            this->regError = reply->errorString();
+        QString regError;
+        if(reply->error() != QNetworkReply::NoError){
+            regError = reply->errorString();
         }
-        else {
-            this->onRegisterFinished();
-            reply->deleteLater();
-        }
+        emit regReqComplete(regError);
+        reply -> deleteLater();
     });
 
-}
-void AuthManager::onRegisterFinished()
-{
-    qDebug() << "Register error: " << this->regError;
-    emit regReqComplete(this->regError);
 }
