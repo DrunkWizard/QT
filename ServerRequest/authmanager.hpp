@@ -14,18 +14,11 @@ public:
                         const QString &password);
     void registering(const QString &login,
                    const QString &password);
-    QString getToken();
-    QString authError;
-    QString regError;
-private slots:
-    void onRegisterFinished();
-    void onAuthFinished();
 signals:
     void regReqComplete(QString);
-    void authReqComplete(QString);
+    void authReqComplete(QString, QString);
 private:
     QNetworkAccessManager _net;
-    QString token;
 
 };
 #endif // AUTHMANAGER_HPP
