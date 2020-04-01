@@ -6,7 +6,6 @@ Item {
     id: signInForm
     height: parent.height
     width: parent.width
-    visible: pageCheck == 0
 
     Text{
         id: signInTitle
